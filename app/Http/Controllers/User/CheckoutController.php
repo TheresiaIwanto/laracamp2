@@ -7,7 +7,9 @@ use App\Models\Checkout;
 use Illuminate\Http\Request;
 use App\Http\Requests\User\Checkout\Store;
 use App\Models\Camp;
-use Illuminate\Support\Facades\Auth;
+use Auth;
+use Mail;
+use App\Mail\Checkout\AfterCheckout;
 use Psy\VersionUpdater\Checker;
 
 class CheckoutController extends Controller
@@ -61,6 +63,9 @@ class CheckoutController extends Controller
         // create checkout
         $checkout = Checkout::create($data);
 
+        // sending mail
+        Mail::to(Auth::user()->email)->send(new AfterCheckout($checkout));
+
         return redirect(route('checkout.success'));
     }
 
@@ -73,7 +78,7 @@ class CheckoutController extends Controller
     public function show(Checkout $checkout)
     {
         //
-    }
+    } 
 
     /**
      * Show the form for editing the specified resource.
@@ -112,5 +117,10 @@ class CheckoutController extends Controller
     public function success()
     {
         return view('checkout.success');
+    }
+
+    public function invoice (Checkout $checkout)
+    {
+        return $checkout;
     }
 }
